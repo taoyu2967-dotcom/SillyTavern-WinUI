@@ -111,6 +111,11 @@ public sealed partial class MainWindow : Window
 
         try
         {
+            if (string.IsNullOrWhiteSpace(App.Settings.TavernPath))
+            {
+                ShowStartupError("尚未配置酒馆安装目录：请点\"打开设置\"，选择包含 server.js 的 SillyTavern 文件夹并保存，然后点\"重试\"。");
+                return;
+            }
             int port;
             if (App.Settings.AutoStartServer)
             {
