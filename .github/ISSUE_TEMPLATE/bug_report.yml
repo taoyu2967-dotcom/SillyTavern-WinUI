@@ -1,0 +1,49 @@
+name: 🐞 Bug report
+description: Report something broken in the SillyTavern-WinUI shell
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting! Please note: **issues inside SillyTavern itself** (chat, extensions, UI) belong upstream at
+        https://github.com/SillyTavern/SillyTavern/issues — this repo is only the desktop shell around it.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Launch SillyTavernWinUI.exe
+        2. ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Server start/stop lifecycle
+        - WebView2 window / rendering
+        - Settings window
+        - Tray icon
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Shell version / commit
+      placeholder: v0.1.0 or commit sha
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Windows 11 24H2, .NET SDK 8.0.x, Node v24.x, GPU model
+    validations:
+      required: true
