@@ -1,50 +1,59 @@
-# SillyTavern WinUI
+<a name="readme-top"></a>
 
-SillyTavern（酒馆）的 WinUI 3 桌面前端外壳。
+<div align="center">
 
-- **与原版零差异**：内嵌 WebView2 直接加载酒馆自身的 Web 界面（`http://127.0.0.1:<port>`），不改一行酒馆前端代码，角色卡、聊天、扩展、主题全部原样。
-- **服务端生命周期管理**：启动时自动拉起 `node server.js`（或附加到已运行实例），关闭时按设置退出或最小化到托盘；由外壳拉起的进程在退出时整树结束。
-- **设置**：酒馆目录、端口覆盖、自动启动、关闭行为、启动最大化。配置文件位于 `%APPDATA%\SillyTavernWinUI\settings.json`，WebView2 用户数据（酒馆 localStorage）位于 `%LOCALAPPDATA%\SillyTavernWinUI\WebView2Data`。
+<h1 align="center">SillyTavern WinUI</h1>
 
-## 关于"超分 / 帧生成"（DLSS / FSR / XeSS / AFMF）
+English | <a href="README-zh-cn.md">简体中文</a>
 
-设置页提供两类**真实有效**的选项，不做假开关：
+</div>
 
-1. **应用层渲染缩放（50%–100%）**：以低于原生分辨率渲染界面再放大（等效超分的性能模式），降低 GPU 占用、提升流畅度。
-2. **驱动层入口**：自动检测 GPU 厂商，一键打开 NVIDIA App / AMD Software / Intel 显卡控制中心。
+A WinUI 3 desktop shell for SillyTavern.
 
-需要说明：DLSS、FSR、XeSS、AFMF、Intel Smooth Motion 是显卡驱动或游戏引擎层的技术，只作用于受支持的 3D 游戏，**任何桌面/网页应用都无法自行集成或开启**，本应用也不例外。
+- **Zero difference from the original**: an embedded WebView2 loads SillyTavern's own web UI (`http://127.0.0.1:<port>`) without touching a single line of its frontend — character cards, chats, extensions and themes all behave exactly as in the browser.
+- **Server lifecycle management**: automatically launches `node server.js` on startup (or attaches to an already-running instance); on exit it either quits or minimizes to the tray per your settings, killing the whole process tree it spawned.
+- **Settings**: tavern folder, port override, auto-start, close behavior, launch maximized. Settings live in `%APPDATA%\SillyTavernWinUI\settings.json`; the WebView2 user data (tavern localStorage) lives in `%LOCALAPPDATA%\SillyTavernWinUI\WebView2Data`.
 
-## 构建
+## About "super resolution / frame generation" (DLSS / FSR / XeSS / AFMF)
 
-要求：Windows 10 1809+ / .NET SDK 8+ / Node.js（PATH 中的 `node`）。
+The settings page offers two kinds of options that are **real and effective** — no fake toggles:
+
+1. **UI scale (80%–120%)**: the same as browser Ctrl+wheel page zoom; below 100% the page renders fewer pixels, making scrolling and animations smoother.
+2. **Driver-level entry points**: detects your GPU vendor and opens NVIDIA App / AMD Software / Intel Graphics Control Center with one click.
+
+Please note: DLSS, FSR, XeSS, AFMF and Intel Smooth Motion are driver- or game-engine-level technologies that only apply to supported 3D games. **No desktop or web app — including this one — can integrate or enable them by itself.**
+
+## Build
+
+Requirements: Windows 10 1809+ / .NET SDK 8+ / Node.js (`node` on PATH).
 
 ```powershell
 cd src\SillyTavernWinUI
 dotnet build -p:Platform=x64
-# 运行：
+# Run:
 dotnet run -p:Platform=x64
-# 或直接运行 bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\SillyTavernWinUI.exe
+# or launch bin\x64\Debug\net8.0-windows10.0.19041.0\SillyTavernWinUI.exe directly
 ```
 
-首次构建会通过 NuGet 还原 Windows App SDK（自包含模式，输出体积较大）。
+The first build restores the Windows App SDK via NuGet (self-contained mode, so the output is fairly large).
 
-## 项目结构
+## Project layout
 
 ```
 src/SillyTavernWinUI/
-├── App.xaml(.cs)              # 应用入口，全局设置
-├── MainWindow.xaml(.cs)       # 主窗口：WebView2 + 启动遮罩 + 托盘
-├── SettingsWindow.xaml(.cs)   # 设置窗口（服务端 / 超分 / 显卡）
+├── App.xaml(.cs)              # App entry, global settings
+├── MainWindow.xaml(.cs)       # Main window: WebView2 + startup overlay + tray
+├── SettingsWindow.xaml(.cs)   # Settings window (server / UI scale / GPU)
 └── Services/
-    ├── AppSettings.cs         # settings.json 读写与端口解析
-    ├── ServerManager.cs       # 探测 / 等待就绪 / 结束进程树
-    ├── ServerProcessLauncher.cs # 固定命令启动 node server.js
-    ├── GpuDetector.cs         # WMI 显卡枚举与厂商识别
-    ├── VendorPanelLauncher.cs # 打开厂商控制面板
-    └── Native.cs              # Win32 互操作
+    ├── AppSettings.cs         # settings.json persistence and port resolution
+    ├── ServerManager.cs       # probe / wait-ready / kill process tree
+    ├── ServerProcessLauncher.cs # launches `node server.js` with a fixed command
+    ├── GpuDetector.cs         # WMI GPU enumeration and vendor detection
+    ├── VendorPanelLauncher.cs # opens vendor control panels
+    ├── RelayCommand.cs        # tray double-click command
+    └── Native.cs              # Win32 interop
 ```
 
 ## License
 
-外壳代码：MIT。SillyTavern 本体遵循其自身许可证，本项目不包含酒馆代码。
+Shell code: MIT. SillyTavern itself is licensed under its own license; this project does not include any SillyTavern code.
