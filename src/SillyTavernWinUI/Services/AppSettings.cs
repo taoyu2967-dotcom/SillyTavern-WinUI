@@ -6,7 +6,7 @@ namespace SillyTavernWinUI.Services;
 
 public class AppSettings
 {
-    public string TavernPath { get; set; } = @"E:\AIresources\ai\SillyTavern-Launcher\SillyTavern";
+    public string TavernPath { get; set; } = "";
     /// <summary>0 表示自动从酒馆 config.yaml 读取端口。</summary>
     public int PortOverride { get; set; } = 0;
     public bool AutoStartServer { get; set; } = true;
@@ -30,19 +30,52 @@ public class AppSettings
 
     public static AppSettings Load()
     {
+        AppSettings settings;
         try
         {
             if (File.Exists(SettingsPath))
             {
                 var json = File.ReadAllText(SettingsPath);
-                return JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+                settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+            }
+            else
+            {
+                settings = new AppSettings();
             }
         }
         catch
         {
             // 设置损坏时回退默认值
+            settings = new AppSettings();
         }
-        return new AppSettings();
+
+        if (string.IsNullOrWhiteSpace(settings.TavernPath))
+        {
+            settings.TavernPath = TryDetectTavernPath();
+        }
+        return settings;
+    }
+
+    /// <summary>在常见安装位置自动探测包含 server.js 的 SillyTavern 目录；找不到返回空字符串。</summary>
+    public static string TryDetectTavernPath()
+    {
+        var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var candidates = new[]
+        {
+            Path.Combine(profile, "SillyTavern"),
+            Path.Combine(profile, "SillyTavern-Launcher", "SillyTavern"),
+            @"C:\SillyTavern",
+            @"D:\SillyTavern",
+            @"E:\SillyTavern",
+        };
+        foreach (var path in candidates)
+        {
+            if (File.Exists(Path.Combine(path, "server.js")))
+            {
+                return path;
+            }
+        }
+        return "";
     }
 
     public void Save()
