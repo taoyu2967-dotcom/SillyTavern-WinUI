@@ -1,0 +1,27 @@
+name: 💡 Feature request
+description: Suggest an idea for the shell
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What are you trying to do that the shell doesn't support?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints acknowledgement
+      description: Please confirm your idea respects the project's ground rules.
+      options:
+        - label: It does not require modifying SillyTavern's own web frontend
+        - label: It does not fake driver/GPU-level features (DLSS, FSR, XeSS, AFMF…) as app features
+    validations:
+      required: true
