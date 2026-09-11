@@ -1,0 +1,91 @@
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace SillyTavernWinUI.Services;
+
+public class AppSettings
+{
+    public string TavernPath { get; set; } = @"E:\AIresources\ai\SillyTavern-Launcher\SillyTavern";
+    /// <summary>0 表示自动从酒馆 config.yaml 读取端口。</summary>
+    public int PortOverride { get; set; } = 0;
+    public bool AutoStartServer { get; set; } = true;
+    public bool CloseToTray { get; set; } = false;
+    /// <summary>界面缩放（0.8 ~ 1.2，Chromium 页面缩放），缩小可提升流畅度。</summary>
+    public double RenderScale { get; set; } = 1.0;
+    public bool LaunchMaximized { get; set; } = true;
+
+    [JsonIgnore]
+    public static string SettingsDirectory =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SillyTavernWinUI");
+
+    [JsonIgnore]
+    public static string SettingsPath => Path.Combine(SettingsDirectory, "settings.json");
+
+    [JsonIgnore]
+    public static string WebView2UserDataFolder =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SillyTavernWinUI", "WebView2Data");
+
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+
+    public static AppSettings Load()
+    {
+        try
+        {
+            if (File.Exists(SettingsPath))
+            {
+                var json = File.ReadAllText(SettingsPath);
+                return JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
+            }
+        }
+        catch
+        {
+            // 设置损坏时回退默认值
+        }
+        return new AppSettings();
+    }
+
+    public void Save()
+    {
+        Directory.CreateDirectory(SettingsDirectory);
+        File.WriteAllText(SettingsPath, JsonSerializer.Serialize(this, JsonOptions));
+    }
+
+    /// <summary>解析酒馆目录下的实际端口：优先用户覆盖值，其次 config.yaml 的 port 字段，最后默认 8000。</summary>
+    public int ResolvePort()
+    {
+        if (PortOverride > 0)
+        {
+            return PortOverride;
+        }
+        try
+        {
+            var configPath = Path.Combine(TavernPath, "config.yaml");
+            if (File.Exists(configPath))
+            {
+                foreach (var rawLine in File.ReadLines(configPath))
+                {
+                    var line = rawLine.Trim();
+                    if (line.StartsWith('#'))
+                    {
+                        continue;
+                    }
+                    // 只匹配顶层 "port: 1234"，避免命中 listenAddress 等嵌套键
+                    if (line.StartsWith("port:", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var value = line["port:".Length..].Trim();
+                        if (int.TryParse(value, out var port) && port > 0)
+                        {
+                            return port;
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // 读取失败回退默认端口
+        }
+        return 8000;
+    }
+}

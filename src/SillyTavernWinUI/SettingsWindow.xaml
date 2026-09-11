@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="SillyTavernWinUI.SettingsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="SettingsTitleBar" Grid.Row="0" Padding="16,0,150,0">
+            <TextBlock Text="设置" VerticalAlignment="Center"
+                       Style="{StaticResource BodyStrongTextBlockStyle}" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" Padding="20,4,20,4">
+            <StackPanel Spacing="20" MaxWidth="720" HorizontalAlignment="Left">
+
+                <!-- 服务端 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="服务端" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <TextBlock Text="酒馆安装目录（包含 server.js 的文件夹）" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TavernPathBox" Grid.Column="0" />
+                        <Button Grid.Column="1" Content="浏览…" Click="Browse_Click" />
+                    </Grid>
+
+                    <TextBlock Text="端口覆盖（0 = 自动读取酒馆 config.yaml）" />
+                    <NumberBox x:Name="PortBox" Minimum="0" Maximum="65535" SpinButtonPlacementMode="Inline" Width="200" HorizontalAlignment="Left" />
+
+                    <ToggleSwitch x:Name="AutoStartSwitch" Header="启动应用时自动运行酒馆服务端" OnContent="开" OffContent="关（仅附加已运行的实例）" />
+                    <ToggleSwitch x:Name="CloseToTraySwitch" Header="点关闭按钮时最小化到托盘" OnContent="开" OffContent="关（直接退出并停止服务端）" />
+                    <ToggleSwitch x:Name="LaunchMaximizedSwitch" Header="启动时最大化窗口" OnContent="开" OffContent="关" />
+                </StackPanel>
+
+                <!-- 性能与超分 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="性能与超分" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <TextBlock x:Name="RenderScaleHeader" Text="界面缩放：100%" />
+                    <Slider x:Name="RenderScaleSlider" Minimum="80" Maximum="120" StepFrequency="5"
+                            TickFrequency="20" TickPlacement="Outside" Width="360" HorizontalAlignment="Left"
+                            ValueChanged="RenderScaleSlider_ValueChanged" />
+                    <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Text="调整酒馆界面的整体缩放（等效浏览器 Ctrl+滚轮）：低于 100% 时页面以更少像素渲染，滚动和动画更流畅；高于 100% 便于阅读大屏。保存后立即生效。" />
+                </StackPanel>
+
+                <!-- 显卡与驱动层帧生成 -->
+                <StackPanel Spacing="10">
+                    <TextBlock Text="显卡与驱动层功能" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <StackPanel x:Name="GpuList" Spacing="6" />
+
+                    <InfoBar IsOpen="True" IsClosable="False" Severity="Informational"
+                             Title="关于 DLSS / FSR / XeSS / AFMF"
+                             Message="这些是显卡驱动或游戏引擎层的技术，作用于受支持的 3D 游戏，无法由桌面应用（包括本应用和酒馆网页界面）自行开启或集成——任何声称在聊天软件里&quot;启用 DLSS&quot;的开关都是虚假的。你可以在下方打开显卡厂商的控制面板，在驱动设置为游戏开启相应功能；对本应用而言，真正有效的性能选项是上方的&quot;渲染缩放&quot;。" />
+
+                    <StackPanel x:Name="VendorButtons" Orientation="Horizontal" Spacing="8" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8"
+                    HorizontalAlignment="Right" Padding="20,12">
+            <TextBlock x:Name="SaveHint" VerticalAlignment="Center"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            <Button Content="保存" Style="{StaticResource AccentButtonStyle}" Click="Save_Click" MinWidth="96" />
+        </StackPanel>
+    </Grid>
+</Window>
